@@ -11,6 +11,7 @@ import java.util.GregorianCalendar;
 
 import javax.swing.AbstractListModel;
 import javax.swing.JOptionPane;
+import javax.swing.table.AbstractTableModel;
 
 /**********************************************************************
  * RentalStore class that extends AbstractListModel, manages the list of
@@ -19,10 +20,15 @@ import javax.swing.JOptionPane;
  * @author Max Jensen and Monica Klosin
  * @version 1.0
  *********************************************************************/
-public class RentalStore extends AbstractListModel {
+public class RentalStore extends AbstractTableModel {
 
 	/** ArrayList of DVDs that holds items in the store */
 	private ArrayList<DVD> listDVDs;
+	
+	private ArrayList<DVD> undoStack;
+	
+	// true is add, false is remove
+	private ArrayList<Boolean> addOrRemove;
 
 	/******************************************************************
 	 * Default constructor that calls the AbstractListModel constructor
@@ -42,7 +48,9 @@ public class RentalStore extends AbstractListModel {
 	 *****************************************************************/
 	public void add(DVD a) {
 		listDVDs.add(a);
-		fireIntervalAdded(this, 0, listDVDs.size());
+		undoStack.add(a);
+		addOrRemove.add(true);
+		fireTableDataChanged();
 	}
 
 	/******************************************************************
@@ -53,8 +61,10 @@ public class RentalStore extends AbstractListModel {
 	 *            DVD to be added
 	 *****************************************************************/
 	public void remove(int a) {
+		undoStack.add(listDVDs.get(a));
+		addOrRemove.add(false);
 		listDVDs.remove(a);
-		fireIntervalAdded(this, 0, listDVDs.size());
+		fireTableDataChanged();
 	}
 
 	/******************************************************************
@@ -153,7 +163,7 @@ public class RentalStore extends AbstractListModel {
 			ObjectInputStream is = new ObjectInputStream(fis);
 
 			listDVDs = (ArrayList<DVD>) is.readObject();
-			fireIntervalAdded(this, 0, listDVDs.size() - 1);
+			fireTableDataChanged();
 			is.close();
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, "Error in loading db");
@@ -235,5 +245,23 @@ public class RentalStore extends AbstractListModel {
 			GregorianCalendar d2) {
 		return (int) ((d1.getTimeInMillis() - d2.getTimeInMillis())
 				/ (1000 * 60 * 60 * 24));
+	}
+
+	@Override
+	public int getRowCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public int getColumnCount() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Object getValueAt(int rowIndex, int columnIndex) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

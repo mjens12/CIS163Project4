@@ -14,6 +14,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 
 /**********************************************************************
  * Class that handles the GUI of the rentalstore
@@ -68,14 +70,13 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	private JMenuItem lateItem;
 
 	/** Holds the RentalStore list with items */
-	private RentalStore list;
+	private RentalStore table;
 
 	/** Holds the JList */
-	private JList JListArea;
+	private JTable JTableArea;
 
-	// Not used, for proj4
 	/** Scroll pane */
-	// private JScrollPane scrollList;
+	 private JScrollPane scrollList;
 
 	/******************************************************************
 	 * Default constructor that creates and arranges all the GUI
@@ -125,10 +126,12 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		// Sets close operation
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// Adds list and JList to the GUI
-		list = new RentalStore();
-		JListArea = new JList(list);
-		add(JListArea);
+		// Update
+		scrollList = new JScrollPane();
+		table = new RentalStore();
+		JTableArea = new JTable(table);
+		scrollList.add(JTableArea);
+		add(scrollList);
 
 		// Sets visibility and size
 		setVisible(true);
@@ -154,7 +157,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				String filename = chooser.getSelectedFile()
 						.getAbsolutePath();
 				if (openSerItem == comp)
-					list.loadFromSerializable(filename);
+					table.loadFromSerializable(filename);
 			}
 		}
 
@@ -166,7 +169,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				String filename = chooser.getSelectedFile()
 						.getAbsolutePath();
 				if (saveSerItem == e.getSource())
-					list.saveAsSerializable(filename);
+					table.saveAsSerializable(filename);
 			}
 		}
 
@@ -180,7 +183,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		if (e.getSource() == rentDVD) {
 			DVD dvd = new DVD();
 			RentDVDDialog dialog = new RentDVDDialog(this, dvd);
-			list.add(dvd);
+			table.add(dvd);
 		}
 
 		// If rentGame is pressed, creates a new game, runs the
@@ -188,7 +191,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		if (e.getSource() == rentGame) {
 			Game game = new Game();
 			RentGameDialog dialog = new RentGameDialog(this, game);
-			list.add(game);
+			table.add(game);
 		}
 
 		// If return is pressed, prompts for return date, and handles
@@ -197,7 +200,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		if (returnItem == e.getSource()) {
 
 			// Gets the index of the selected item
-			int index = JListArea.getSelectedIndex();
+			int index = JTableArea.getSelectedIndex();
 
 			// Lets the user know if they haven't selected an item
 			if (index < 0) {
@@ -211,7 +214,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				date.setLenient(false);
 				String inputDate = JOptionPane
 						.showInputDialog("Enter return date: ");
-				DVD unit = list.get(index);
+				DVD unit = table.get(index);
 
 				// If there is something entered in the return date
 				// input, continues with the process of returning
@@ -237,7 +240,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 							// out date, lets the user know and doesn't
 							// continue
 							if (date.compareTo(
-									list.get(index).getBought()) < 0) {
+									table.get(index).getBought()) < 0) {
 								JOptionPane.showMessageDialog(null,
 										"You can not return an item before it was checked out! Please try again");
 							}
@@ -254,7 +257,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 										+ ". You owe: "
 										+ unit.getCost(date)
 										+ " dollars");
-								list.remove(index);
+								table.remove(index);
 							}
 						}
 					} catch (Exception pe) {
@@ -306,7 +309,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 						// If there are no items late as of the date
 						// entered, displays an appropriate message
-						if (list.getLate(date).equals(""))
+						if (table.getLate(date).equals(""))
 							JOptionPane.showMessageDialog(null,
 									"No rented items are late as of "
 											+ DateFormat
@@ -325,7 +328,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 															DateFormat.SHORT)
 													.format(newDate)
 											+ ": \n"
-											+ list.getLate(date));
+											+ table.getLate(date));
 					}
 				}
 
