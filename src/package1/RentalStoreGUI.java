@@ -40,6 +40,9 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 	/** Menu item for exit */
 	private JMenuItem exitItem;
+	
+	/** Menu item for undo */
+	private JMenuItem undoItem;
 
 	/** Menu item for saving serialized object */
 	private JMenuItem saveSerItem;
@@ -97,6 +100,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		rentGame = new JMenuItem("Rent Game");
 		returnItem = new JMenuItem("Return");
 		lateItem = new JMenuItem("Check Days Late");
+		undoItem = new JMenuItem("Undo");
 
 		// Adds items menus
 		fileMenu.add(openSerItem);
@@ -106,6 +110,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		actionMenu.add(rentGame);
 		actionMenu.add(returnItem);
 		actionMenu.add(lateItem);
+		actionMenu.add(undoItem);
 
 		// Adds menus to bar
 		menus.add(fileMenu);
@@ -119,6 +124,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		rentGame.addActionListener(this);
 		returnItem.addActionListener(this);
 		lateItem.addActionListener(this);
+		undoItem.addActionListener(this);
 
 		// Sets the menus
 		setJMenuBar(menus);
@@ -173,6 +179,10 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			}
 		}
 
+		if (e.getSource() == undoItem) {
+			table.undo();
+		}
+		
 		// If exit is pressed, exits
 		if (e.getSource() == exitItem) {
 			System.exit(1);

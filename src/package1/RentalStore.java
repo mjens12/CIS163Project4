@@ -14,8 +14,8 @@ import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 /**********************************************************************
- * RentalStore class that extends AbstractListModel, manages the list of
- * rented items
+ * RentalStore class that extends AbstractListModel, manages the list of rented
+ * items
  * 
  * @author Max Jensen and Monica Klosin
  * @version 1.0
@@ -24,24 +24,26 @@ public class RentalStore extends AbstractTableModel {
 
 	/** ArrayList of DVDs that holds items in the store */
 	private ArrayList<DVD> listDVDs;
-	
+
 	private ArrayList<DVD> undoStack;
-	
+
 	// true is add, false is remove
 	private ArrayList<Boolean> addOrRemove;
 
 	/******************************************************************
-	 * Default constructor that calls the AbstractListModel constructor
-	 * and creates the arraylist of DVDs
+	 * Default constructor that calls the AbstractListModel constructor and creates
+	 * the arraylist of DVDs
 	 *****************************************************************/
 	public RentalStore() {
 		super();
 		listDVDs = new ArrayList<DVD>();
+		undoStack = new ArrayList<DVD>();
+		addOrRemove = new ArrayList<Boolean>();
 	}
 
 	/******************************************************************
-	 * Method for adding a DVD to the arraylist, also triggers a GUI
-	 * update to show new list contents
+	 * Method for adding a DVD to the arraylist, also triggers a GUI update to show
+	 * new list contents
 	 * 
 	 * @param a
 	 *            DVD to be added
@@ -54,8 +56,8 @@ public class RentalStore extends AbstractTableModel {
 	}
 
 	/******************************************************************
-	 * Method for removing a DVD from the arraylist, also triggers a GUI
-	 * update to show new list contents
+	 * Method for removing a DVD from the arraylist, also triggers a GUI update to
+	 * show new list contents
 	 * 
 	 * @param a
 	 *            DVD to be added
@@ -65,6 +67,24 @@ public class RentalStore extends AbstractTableModel {
 		addOrRemove.add(false);
 		listDVDs.remove(a);
 		fireTableDataChanged();
+	}
+
+	public void undo() {
+		if (addOrRemove.size() == 0)
+			return;
+		else {
+			if (addOrRemove.get(addOrRemove.size() - 1) == true) {
+				listDVDs.remove(listDVDs.size() - 1);
+				addOrRemove.remove(addOrRemove.size()-1);
+				undoStack.remove(undoStack.size()-1);
+			}
+			if (addOrRemove.get(addOrRemove.size() - 1) == false) {
+				listDVDs.add(undoStack.get(undoStack.size() - 1));
+				addOrRemove.remove(addOrRemove.size()-1);
+				undoStack.remove(undoStack.size()-1);
+			}
+			fireTableDataChanged();
+		}
 	}
 
 	/******************************************************************
@@ -78,8 +98,8 @@ public class RentalStore extends AbstractTableModel {
 	}
 
 	/******************************************************************
-	 * Method for getting a DVD from the list and parsing its
-	 * information into a string to be displayed
+	 * Method for getting a DVD from the list and parsing its information into a
+	 * string to be displayed
 	 * 
 	 * @param arg0
 	 *            Index of item to be grabbed
@@ -92,17 +112,12 @@ public class RentalStore extends AbstractTableModel {
 
 		// Formats the rented on and due back dates
 		try {
-			String rentedOnDateStr = DateFormat
-					.getDateInstance(DateFormat.SHORT)
-					.format(unit.getBought().getTime());
+			String rentedOnDateStr = DateFormat.getDateInstance(DateFormat.SHORT).format(unit.getBought().getTime());
 
-			String dueBackOnDateStr = DateFormat
-					.getDateInstance(DateFormat.SHORT)
-					.format(unit.getDueBack().getTime());
+			String dueBackOnDateStr = DateFormat.getDateInstance(DateFormat.SHORT).format(unit.getDueBack().getTime());
 
 			// Creates the String for the item's info
-			String line = "Name: "
-					+ listDVDs.get(arg0).getNameOfRenter() + " ";
+			String line = "Name: " + listDVDs.get(arg0).getNameOfRenter() + " ";
 
 			// Adds info to the string
 			line += "Title: " + unit.getTitle() + ", ";
@@ -171,10 +186,10 @@ public class RentalStore extends AbstractTableModel {
 	}
 
 	/******************************************************************
-	 * Method for checking if any items will be considered late after a
-	 * user provided date. Returns a string of "" if no items will be
-	 * late, returns items, their information, and their number of days
-	 * late on sepparate lines if there are late items
+	 * Method for checking if any items will be considered late after a user
+	 * provided date. Returns a string of "" if no items will be late, returns
+	 * items, their information, and their number of days late on sepparate lines if
+	 * there are late items
 	 * 
 	 * @param lateDate
 	 *            The date to test
@@ -192,16 +207,13 @@ public class RentalStore extends AbstractTableModel {
 				// to the string
 				try {
 					DVD unit = listDVDs.get(i);
-					String rentedOnDateStr = DateFormat
-							.getDateInstance(DateFormat.SHORT)
+					String rentedOnDateStr = DateFormat.getDateInstance(DateFormat.SHORT)
 							.format(unit.getBought().getTime());
 
-					String dueBackOnDateStr = DateFormat
-							.getDateInstance(DateFormat.SHORT)
+					String dueBackOnDateStr = DateFormat.getDateInstance(DateFormat.SHORT)
 							.format(unit.getDueBack().getTime());
 
-					String line = "Name: "
-							+ listDVDs.get(i).getNameOfRenter() + " ";
+					String line = "Name: " + listDVDs.get(i).getNameOfRenter() + " ";
 
 					line += "Title: " + unit.getTitle() + ", ";
 					line += "Rented On: " + rentedOnDateStr + ", ";
@@ -210,13 +222,10 @@ public class RentalStore extends AbstractTableModel {
 					// If the late item is a game, adds the type of
 					// console to the string
 					if (unit instanceof Game)
-						line += ", Player: "
-								+ ((Game) unit).getPlayer();
+						line += ", Player: " + ((Game) unit).getPlayer();
 
 					// Adds the number of days late to the string
-					line += (", "
-							+ daysBetween(lateDate, unit.getDueBack())
-							+ " days late");
+					line += (", " + daysBetween(lateDate, unit.getDueBack()) + " days late");
 					lateThings += (line + "\n");
 
 				}
@@ -233,18 +242,16 @@ public class RentalStore extends AbstractTableModel {
 	}
 
 	/******************************************************************
-	 * Method for computing the number of days between two dates. Used
-	 * to compute how many days late an item will be
+	 * Method for computing the number of days between two dates. Used to compute
+	 * how many days late an item will be
 	 * 
 	 * @param d1
 	 *            First date to be compared
 	 * @param d2
 	 *            Second date to be compared
 	 *****************************************************************/
-	private int daysBetween(GregorianCalendar d1,
-			GregorianCalendar d2) {
-		return (int) ((d1.getTimeInMillis() - d2.getTimeInMillis())
-				/ (1000 * 60 * 60 * 24));
+	private int daysBetween(GregorianCalendar d1, GregorianCalendar d2) {
+		return (int) ((d1.getTimeInMillis() - d2.getTimeInMillis()) / (1000 * 60 * 60 * 24));
 	}
 
 	@Override
