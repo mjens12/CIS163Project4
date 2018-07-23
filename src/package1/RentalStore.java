@@ -9,63 +9,64 @@ import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 
-import javax.swing.AbstractListModel;
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 /**********************************************************************
- * RentalStore class that extends AbstractListModel, manages the list of rented
- * items
+ * RentalStore class that extends AbstractListModel, manages the list of
+ * rented items
  * 
  * @author Max Jensen and Monica Klosin
  * @version 1.0
  *********************************************************************/
 public class RentalStore extends AbstractTableModel {
 
-	/** ArrayList of DVDs that holds items in the store */
-	private ArrayList<DVD> listDVDs;
+	private MyDoubleLinkedList<DVD> linkedListDVDs;
 
 	private ArrayList<DVD> undoStack;
 
 	// true is add, false is remove
 	private ArrayList<Boolean> addOrRemove;
 
+	private String[] tableColumnNames = { "Renter Name", "Title",
+			"Date Rented", "Due Date", "Player Type" };
+
 	/******************************************************************
-	 * Default constructor that calls the AbstractListModel constructor and creates
-	 * the arraylist of DVDs
+	 * Default constructor that calls the AbstractListModel constructor
+	 * and creates the arraylist of DVDs
 	 *****************************************************************/
 	public RentalStore() {
 		super();
-		listDVDs = new ArrayList<DVD>();
 		undoStack = new ArrayList<DVD>();
 		addOrRemove = new ArrayList<Boolean>();
+		linkedListDVDs = new MyDoubleLinkedList<DVD>();
 	}
 
 	/******************************************************************
-	 * Method for adding a DVD to the arraylist, also triggers a GUI update to show
-	 * new list contents
+	 * Method for adding a DVD to the arraylist, also triggers a GUI
+	 * update to show new list contents
 	 * 
 	 * @param a
 	 *            DVD to be added
 	 *****************************************************************/
 	public void add(DVD a) {
-		listDVDs.add(a);
+		linkedListDVDs.add(a);
 		undoStack.add(a);
 		addOrRemove.add(true);
 		fireTableDataChanged();
 	}
 
 	/******************************************************************
-	 * Method for removing a DVD from the arraylist, also triggers a GUI update to
-	 * show new list contents
+	 * Method for removing a DVD from the arraylist, also triggers a GUI
+	 * update to show new list contents
 	 * 
 	 * @param a
 	 *            DVD to be added
 	 *****************************************************************/
 	public void remove(int a) {
-		undoStack.add(listDVDs.get(a));
+		undoStack.add(linkedListDVDs.get(a));
 		addOrRemove.add(false);
-		listDVDs.remove(a);
+		linkedListDVDs.remove(a);
 		fireTableDataChanged();
 	}
 
@@ -74,78 +75,17 @@ public class RentalStore extends AbstractTableModel {
 			return;
 		else {
 			if (addOrRemove.get(addOrRemove.size() - 1) == true) {
-				listDVDs.remove(listDVDs.size() - 1);
-				addOrRemove.remove(addOrRemove.size()-1);
-				undoStack.remove(undoStack.size()-1);
+				linkedListDVDs.remove(linkedListDVDs.size() - 1);
+				addOrRemove.remove(addOrRemove.size() - 1);
+				undoStack.remove(undoStack.size() - 1);
 			}
 			if (addOrRemove.get(addOrRemove.size() - 1) == false) {
-				listDVDs.add(undoStack.get(undoStack.size() - 1));
-				addOrRemove.remove(addOrRemove.size()-1);
-				undoStack.remove(undoStack.size()-1);
+				linkedListDVDs.add(undoStack.get(undoStack.size() - 1));
+				addOrRemove.remove(addOrRemove.size() - 1);
+				undoStack.remove(undoStack.size() - 1);
 			}
 			fireTableDataChanged();
 		}
-	}
-
-	/******************************************************************
-	 * Method for getting a DVD from the list
-	 * 
-	 * @param i
-	 *            Index of item to be grabbed
-	 *****************************************************************/
-	public DVD get(int i) {
-		return listDVDs.get(i);
-	}
-
-	/******************************************************************
-	 * Method for getting a DVD from the list and parsing its information into a
-	 * string to be displayed
-	 * 
-	 * @param arg0
-	 *            Index of item to be grabbed
-	 * 
-	 * @return Object a string with all the item's information
-	 *****************************************************************/
-	public Object getElementAt(int arg0) {
-
-		DVD unit = listDVDs.get(arg0);
-
-		// Formats the rented on and due back dates
-		try {
-			String rentedOnDateStr = DateFormat.getDateInstance(DateFormat.SHORT).format(unit.getBought().getTime());
-
-			String dueBackOnDateStr = DateFormat.getDateInstance(DateFormat.SHORT).format(unit.getDueBack().getTime());
-
-			// Creates the String for the item's info
-			String line = "Name: " + listDVDs.get(arg0).getNameOfRenter() + " ";
-
-			// Adds info to the string
-			line += "Title: " + unit.getTitle() + ", ";
-			line += "Rented On: " + rentedOnDateStr + ", ";
-			line += "Due Back: " + dueBackOnDateStr;
-
-			// Adds additional info to the string if the item is a game
-			if (unit instanceof Game)
-				line += ", Player: " + ((Game) unit).getPlayer();
-
-			// Returns the completed string
-			return line;
-		}
-
-		// Catches exceptions
-		catch (Exception ex) {
-			return null;
-		}
-	}
-
-	/******************************************************************
-	 * Method for getting the size of the list of items
-	 * 
-	 * @return int Size of DVD list
-	 *****************************************************************/
-	public int getSize() {
-		// return 5;
-		return listDVDs.size();
 	}
 
 	/******************************************************************
@@ -158,7 +98,7 @@ public class RentalStore extends AbstractTableModel {
 		try {
 			FileOutputStream fos = new FileOutputStream(filename);
 			ObjectOutputStream os = new ObjectOutputStream(fos);
-			os.writeObject(listDVDs);
+			os.writeObject(linkedListDVDs);
 			os.close();
 		} catch (IOException ex) {
 			JOptionPane.showMessageDialog(null, "Error in saving db");
@@ -177,7 +117,7 @@ public class RentalStore extends AbstractTableModel {
 			FileInputStream fis = new FileInputStream(filename);
 			ObjectInputStream is = new ObjectInputStream(fis);
 
-			listDVDs = (ArrayList<DVD>) is.readObject();
+			linkedListDVDs = (MyDoubleLinkedList<DVD>) is.readObject();
 			fireTableDataChanged();
 			is.close();
 		} catch (Exception ex) {
@@ -186,10 +126,10 @@ public class RentalStore extends AbstractTableModel {
 	}
 
 	/******************************************************************
-	 * Method for checking if any items will be considered late after a user
-	 * provided date. Returns a string of "" if no items will be late, returns
-	 * items, their information, and their number of days late on sepparate lines if
-	 * there are late items
+	 * Method for checking if any items will be considered late after a
+	 * user provided date. Returns a string of "" if no items will be
+	 * late, returns items, their information, and their number of days
+	 * late on sepparate lines if there are late items
 	 * 
 	 * @param lateDate
 	 *            The date to test
@@ -200,20 +140,25 @@ public class RentalStore extends AbstractTableModel {
 
 		// Runs through the list of DVDs and checks to see if any of
 		// them will be late based on the passed date
-		for (int i = 0; i < listDVDs.size(); i++) {
-			if (listDVDs.get(i).getDueBack().compareTo(lateDate) <= 0) {
+		for (int i = 0; i < linkedListDVDs.size(); i++) {
+			if (linkedListDVDs.get(i).getDueBack()
+					.compareTo(lateDate) <= 0) {
 
 				// If the item is late, pulls its info out and adds it
 				// to the string
 				try {
-					DVD unit = listDVDs.get(i);
-					String rentedOnDateStr = DateFormat.getDateInstance(DateFormat.SHORT)
+					DVD unit = linkedListDVDs.get(i);
+					String rentedOnDateStr = DateFormat
+							.getDateInstance(DateFormat.SHORT)
 							.format(unit.getBought().getTime());
 
-					String dueBackOnDateStr = DateFormat.getDateInstance(DateFormat.SHORT)
+					String dueBackOnDateStr = DateFormat
+							.getDateInstance(DateFormat.SHORT)
 							.format(unit.getDueBack().getTime());
 
-					String line = "Name: " + listDVDs.get(i).getNameOfRenter() + " ";
+					String line = "Name: "
+							+ linkedListDVDs.get(i).getNameOfRenter()
+							+ " ";
 
 					line += "Title: " + unit.getTitle() + ", ";
 					line += "Rented On: " + rentedOnDateStr + ", ";
@@ -222,10 +167,13 @@ public class RentalStore extends AbstractTableModel {
 					// If the late item is a game, adds the type of
 					// console to the string
 					if (unit instanceof Game)
-						line += ", Player: " + ((Game) unit).getPlayer();
+						line += ", Player: "
+								+ ((Game) unit).getPlayer();
 
 					// Adds the number of days late to the string
-					line += (", " + daysBetween(lateDate, unit.getDueBack()) + " days late");
+					line += (", "
+							+ daysBetween(lateDate, unit.getDueBack())
+							+ " days late");
 					lateThings += (line + "\n");
 
 				}
@@ -242,33 +190,68 @@ public class RentalStore extends AbstractTableModel {
 	}
 
 	/******************************************************************
-	 * Method for computing the number of days between two dates. Used to compute
-	 * how many days late an item will be
+	 * Method for computing the number of days between two dates. Used
+	 * to compute how many days late an item will be
 	 * 
 	 * @param d1
 	 *            First date to be compared
 	 * @param d2
 	 *            Second date to be compared
 	 *****************************************************************/
-	private int daysBetween(GregorianCalendar d1, GregorianCalendar d2) {
-		return (int) ((d1.getTimeInMillis() - d2.getTimeInMillis()) / (1000 * 60 * 60 * 24));
+	private int daysBetween(GregorianCalendar d1,
+			GregorianCalendar d2) {
+		return (int) ((d1.getTimeInMillis() - d2.getTimeInMillis())
+				/ (1000 * 60 * 60 * 24));
 	}
 
-	@Override
 	public int getRowCount() {
-		// TODO Auto-generated method stub
-		return 0;
+
+		return linkedListDVDs.size();
 	}
 
-	@Override
 	public int getColumnCount() {
-		// TODO Auto-generated method stub
-		return 0;
+		return 5;
 	}
 
-	@Override
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		// TODO Auto-generated method stub
-		return null;
+		DVD temp = linkedListDVDs.get(rowIndex);
+
+		if (columnIndex == 0) {
+			return temp.getNameOfRenter();
+		}
+
+		if (columnIndex == 1) {
+			return temp.getTitle();
+		}
+
+		if (columnIndex == 2) {
+
+			String rentedOnDateStr = DateFormat
+					.getDateInstance(DateFormat.SHORT)
+					.format(temp.getBought().getTime());
+			return rentedOnDateStr;
+		}
+
+		if (columnIndex == 3) {
+
+			String dueBackDateStr = DateFormat
+					.getDateInstance(DateFormat.SHORT)
+					.format(temp.getBought().getTime());
+			return dueBackDateStr;
+		}
+
+		if (columnIndex == 4 && temp.getClass() == Game.class) {
+			return ((Game) temp).getPlayer();
+		} else
+			return "";
+
+	}
+
+	public DVD get(int index) {
+		return linkedListDVDs.get(index);
+	}
+
+	public String getColumnName(int column) {
+		return tableColumnNames[column];
 	}
 }
