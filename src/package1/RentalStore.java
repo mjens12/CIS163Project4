@@ -134,6 +134,7 @@ public class RentalStore extends AbstractTableModel {
 			is.close();
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, "Error in loading db");
+			ex.printStackTrace();
 		}
 	}
 
@@ -246,7 +247,7 @@ public class RentalStore extends AbstractTableModel {
 		// them will be late based on the passed date
 		for (int i = 0; i < linkedListDVDs.size(); i++) {
 			if (linkedListDVDs.get(i).getDueBack()
-					.compareTo(lateDate) <= 0) {
+					.compareTo(lateDate) < 0) {
 
 				// If the item is late, pulls its info out and adds it
 				// to the string
@@ -340,7 +341,7 @@ public class RentalStore extends AbstractTableModel {
 
 				String dueBackDateStr = DateFormat
 						.getDateInstance(DateFormat.SHORT)
-						.format(temp.getBought().getTime());
+						.format(temp.getDueBack().getTime());
 				return dueBackDateStr;
 			}
 

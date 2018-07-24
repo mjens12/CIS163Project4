@@ -105,8 +105,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		undoItem = new JMenuItem("Undo");
 
 		// Adds items menus
-		fileMenu.add(openSerItem);
 		fileMenu.add(saveSerItem);
+		fileMenu.add(openSerItem);
 		fileMenu.add(saveTextItem);
 		fileMenu.add(openTextItem);
 		fileMenu.add(exitItem);
