@@ -1,13 +1,18 @@
 package package1;
 
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
 import java.text.DateFormat;
-import java.util.ArrayList;
+import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.Scanner;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
@@ -23,13 +28,17 @@ public class RentalStore extends AbstractTableModel {
 
 	private MyDoubleLinkedList<DVD> linkedListDVDs;
 
-	private ArrayList<DVD> undoStack;
+	private MyDoubleLinkedList<DVD> undoStack;
 
 	// true is add, false is remove
-	private ArrayList<Boolean> addOrRemove;
+	private MyDoubleLinkedList<Boolean> addOrRemove;
 
 	private String[] tableColumnNames = { "Renter Name", "Title",
 			"Date Rented", "Due Date", "Player Type" };
+
+	/** Array to hold game console options */
+	private String[] playerOptions = { "Xbox360", "XBox1", "PS4",
+			"WiiU", "NintendoSwitch" };
 
 	/******************************************************************
 	 * Default constructor that calls the AbstractListModel constructor
@@ -37,8 +46,8 @@ public class RentalStore extends AbstractTableModel {
 	 *****************************************************************/
 	public RentalStore() {
 		super();
-		undoStack = new ArrayList<DVD>();
-		addOrRemove = new ArrayList<Boolean>();
+		undoStack = new MyDoubleLinkedList<DVD>();
+		addOrRemove = new MyDoubleLinkedList<Boolean>();
 		linkedListDVDs = new MyDoubleLinkedList<DVD>();
 	}
 
@@ -78,13 +87,16 @@ public class RentalStore extends AbstractTableModel {
 				linkedListDVDs.remove(linkedListDVDs.size() - 1);
 				addOrRemove.remove(addOrRemove.size() - 1);
 				undoStack.remove(undoStack.size() - 1);
+				fireTableDataChanged();
+				return;
 			}
 			if (addOrRemove.get(addOrRemove.size() - 1) == false) {
 				linkedListDVDs.add(undoStack.get(undoStack.size() - 1));
 				addOrRemove.remove(addOrRemove.size() - 1);
 				undoStack.remove(undoStack.size() - 1);
+				fireTableDataChanged();
+				return;
 			}
-			fireTableDataChanged();
 		}
 	}
 
@@ -102,7 +114,7 @@ public class RentalStore extends AbstractTableModel {
 			os.close();
 		} catch (IOException ex) {
 			JOptionPane.showMessageDialog(null, "Error in saving db");
-
+			ex.printStackTrace();
 		}
 	}
 
@@ -123,6 +135,98 @@ public class RentalStore extends AbstractTableModel {
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, "Error in loading db");
 		}
+	}
+
+	public void saveAsText(String filename) {
+		PrintWriter out = null;
+		try {
+			out = new PrintWriter(
+					new BufferedWriter(new FileWriter(filename)));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		for (int i = 0; i < linkedListDVDs.size(); i++) {
+			if (linkedListDVDs.get(i).getClass() == Game.class) {
+				out.println("game");
+			}
+			if (linkedListDVDs.get(i).getClass() == DVD.class) {
+				out.println("dvd");
+			}
+			out.println(linkedListDVDs.get(i).getNameOfRenter());
+			out.println(linkedListDVDs.get(i).getTitle());
+			String rentedOnDateStr = DateFormat
+					.getDateInstance(DateFormat.SHORT)
+					.format(linkedListDVDs.get(i).getBought()
+							.getTime());
+			out.println(rentedOnDateStr);
+			String dueBackOnDateStr = DateFormat
+					.getDateInstance(DateFormat.SHORT)
+					.format(linkedListDVDs.get(i).getDueBack()
+							.getTime());
+			out.println(dueBackOnDateStr);
+			if (linkedListDVDs.get(i).getClass() == Game.class) {
+				out.println(((Game) linkedListDVDs.get(i)).getPlayer());
+			}
+		}
+		out.close();
+
+	}
+
+	public void loadFromText(String filename) {
+
+		try {
+			Scanner fileReader = new Scanner(new File(filename));
+
+			MyDoubleLinkedList<DVD> newDLL = new MyDoubleLinkedList<DVD>();
+
+			SimpleDateFormat format = new SimpleDateFormat(
+					"MM/dd/yyyy");
+
+			// Creates two calendars to manage the entered dates
+			GregorianCalendar cal1 = new GregorianCalendar();
+			GregorianCalendar cal2 = new GregorianCalendar();
+
+			// Sets leniency of the two calendars
+			cal1.setLenient(false);
+			cal2.setLenient(false);
+
+			while (fileReader.hasNext()) {
+
+				if (fileReader.nextLine().equals("game")) {
+					Game gToAdd = new Game();
+					gToAdd.setNameOfRenter(fileReader.nextLine());
+					gToAdd.setTitle(fileReader.nextLine());
+					cal1.setTime(format.parse(fileReader.nextLine()));
+					gToAdd.setBought(cal1);
+					cal2.setTime(format.parse(fileReader.nextLine()));
+					gToAdd.setDueBack(cal2);
+					gToAdd.setPlayer(
+							PlayerType.valueOf(fileReader.nextLine()));
+					newDLL.add(gToAdd);
+
+				} else {
+					DVD toAdd = new DVD();
+					toAdd.setNameOfRenter(fileReader.nextLine());
+					toAdd.setTitle(fileReader.nextLine());
+					cal1.setTime(format.parse(fileReader.nextLine()));
+					toAdd.setBought(cal1);
+					cal2.setTime(format.parse(fileReader.nextLine()));
+					toAdd.setDueBack(cal2);
+					newDLL.add(toAdd);
+				}
+
+			}
+			linkedListDVDs = newDLL;
+			fireTableDataChanged();
+			fileReader.close();
+		}
+
+		// problem reading the file
+		catch (Exception error) {
+			System.out.println("Oops! Reading the file went wrong");
+			error.printStackTrace();
+		}
+
 	}
 
 	/******************************************************************
@@ -215,35 +319,38 @@ public class RentalStore extends AbstractTableModel {
 
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		DVD temp = linkedListDVDs.get(rowIndex);
+		try {
+			if (columnIndex == 0) {
+				return temp.getNameOfRenter();
+			}
 
-		if (columnIndex == 0) {
-			return temp.getNameOfRenter();
+			if (columnIndex == 1) {
+				return temp.getTitle();
+			}
+
+			if (columnIndex == 2) {
+
+				String rentedOnDateStr = DateFormat
+						.getDateInstance(DateFormat.SHORT)
+						.format(temp.getBought().getTime());
+				return rentedOnDateStr;
+			}
+
+			if (columnIndex == 3) {
+
+				String dueBackDateStr = DateFormat
+						.getDateInstance(DateFormat.SHORT)
+						.format(temp.getBought().getTime());
+				return dueBackDateStr;
+			}
+
+			if (columnIndex == 4 && temp.getClass() == Game.class) {
+				return ((Game) temp).getPlayer();
+			} else
+				return "";
+		} catch (Exception e) {
+			return null;
 		}
-
-		if (columnIndex == 1) {
-			return temp.getTitle();
-		}
-
-		if (columnIndex == 2) {
-
-			String rentedOnDateStr = DateFormat
-					.getDateInstance(DateFormat.SHORT)
-					.format(temp.getBought().getTime());
-			return rentedOnDateStr;
-		}
-
-		if (columnIndex == 3) {
-
-			String dueBackDateStr = DateFormat
-					.getDateInstance(DateFormat.SHORT)
-					.format(temp.getBought().getTime());
-			return dueBackDateStr;
-		}
-
-		if (columnIndex == 4 && temp.getClass() == Game.class) {
-			return ((Game) temp).getPlayer();
-		} else
-			return "";
 
 	}
 

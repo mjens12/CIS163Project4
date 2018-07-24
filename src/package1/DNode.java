@@ -1,6 +1,8 @@
 package package1;
 
-public class DNode<E> {
+import java.io.Serializable;
+
+public class DNode<E> implements Serializable {
 	private E data;
 	private DNode next;
 	private DNode prev;

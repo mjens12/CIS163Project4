@@ -86,12 +86,17 @@ public class MyDoubleLinkedList<E> implements Serializable {
 				else {
 					n1 = top;
 					n2 = top;
-					// gets to the next to last index
+					// gets to the index to set returned
+					for (int i = 0; i < (index); i++) {
+						n1 = n1.getNext();
+					}
+					returned = n1.getData();
+
+					n1 = top;
+
 					for (int i = 0; i < (index - 1); i++) {
 						n1 = n1.getNext();
 					}
-					n1 = n1.getNext();
-					returned = n1.getData();
 					// gets to index+1
 					for (int i = 0; i < (index + 1); i++) {
 						n2 = n2.getNext();

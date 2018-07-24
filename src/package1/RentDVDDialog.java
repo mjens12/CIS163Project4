@@ -16,7 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
 
 /**********************************************************************
  * Class that handles the GUI for renting a DVD
@@ -71,9 +70,6 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 
 		// Sets the passed DVD to unit
 		unit = d;
-
-		// Prevents user from closing window
-		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		// Instantiates and displays JLabels and text fields (with
 		// default text values) for each input area
@@ -130,10 +126,8 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 	 *****************************************************************/
 	public void actionPerformed(ActionEvent e) {
 
-		JButton button = (JButton) e.getSource();
-
 		// If OK is clicked, fill the object with entered info
-		if (button == okButton) {
+		if (e.getSource() == okButton) {
 			// Allows the frame to be closed
 			closeStatus = true;
 
@@ -192,8 +186,8 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 
 		// If cancel is clicked, allows the frame to be closed and
 		// closes the frame
-		if (button == cancelButton) {
-
+		if (e.getSource() == cancelButton) {
+			unit = null;
 			closeStatus = true;
 			dispose();
 		}

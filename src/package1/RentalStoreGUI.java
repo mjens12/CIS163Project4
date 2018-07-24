@@ -93,11 +93,11 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		menus = new JMenuBar();
 		fileMenu = new JMenu("File");
 		actionMenu = new JMenu("Action");
-		openSerItem = new JMenuItem("Open File");
+		openSerItem = new JMenuItem("Open File From Serializable");
 		exitItem = new JMenuItem("Exit");
-		saveSerItem = new JMenuItem("Save File");
-		openTextItem = new JMenuItem("Open Text");
-		saveTextItem = new JMenuItem("Save Text");
+		saveSerItem = new JMenuItem("Save File As Serializable");
+		openTextItem = new JMenuItem("Open File From Text");
+		saveTextItem = new JMenuItem("Save File As Text");
 		rentDVD = new JMenuItem("Rent DVD");
 		rentGame = new JMenuItem("Rent Game");
 		returnItem = new JMenuItem("Return");
@@ -107,6 +107,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		// Adds items menus
 		fileMenu.add(openSerItem);
 		fileMenu.add(saveSerItem);
+		fileMenu.add(saveTextItem);
+		fileMenu.add(openTextItem);
 		fileMenu.add(exitItem);
 		actionMenu.add(rentDVD);
 		actionMenu.add(rentGame);
@@ -127,6 +129,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		returnItem.addActionListener(this);
 		lateItem.addActionListener(this);
 		undoItem.addActionListener(this);
+		saveTextItem.addActionListener(this);
+		openTextItem.addActionListener(this);
 
 		// Sets the menus
 		setJMenuBar(menus);
@@ -166,7 +170,7 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		Object comp = e.getSource();
 
 		// If open button is pressed, handles opening a serialized save
-		if (openSerItem == comp || openTextItem == comp) {
+		if (openSerItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showOpenDialog(null);
 			if (status == JFileChooser.APPROVE_OPTION) {
@@ -177,8 +181,30 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			}
 		}
 
+		if (openTextItem == comp) {
+			JFileChooser chooser = new JFileChooser();
+			int status = chooser.showOpenDialog(null);
+			if (status == JFileChooser.APPROVE_OPTION) {
+				String filename = chooser.getSelectedFile()
+						.getAbsolutePath();
+				if (openTextItem == comp)
+					linkedList.loadFromText(filename);
+			}
+		}
+
+		if (saveTextItem == comp) {
+			JFileChooser chooser = new JFileChooser();
+			int status = chooser.showSaveDialog(null);
+			if (status == JFileChooser.APPROVE_OPTION) {
+				String filename = chooser.getSelectedFile()
+						.getAbsolutePath();
+				if (saveTextItem == e.getSource())
+					linkedList.saveAsText(filename);
+			}
+		}
+
 		// If save button is pressed, handles saving a serialized object
-		if (saveSerItem == comp || saveTextItem == comp) {
+		if (saveSerItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showSaveDialog(null);
 			if (status == JFileChooser.APPROVE_OPTION) {
@@ -203,7 +229,10 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		if (e.getSource() == rentDVD) {
 			DVD dvd = new DVD();
 			RentDVDDialog dialog = new RentDVDDialog(this, dvd);
-			linkedList.add(dvd);
+			if (dvd.getTitle() == null)
+				return;
+			else
+				linkedList.add(dvd);
 		}
 
 		// If rentGame is pressed, creates a new game, runs the
@@ -211,7 +240,10 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		if (e.getSource() == rentGame) {
 			Game game = new Game();
 			RentGameDialog dialog = new RentGameDialog(this, game);
-			linkedList.add(game);
+			if (game.getTitle() == null)
+				return;
+			else
+				linkedList.add(game);
 		}
 
 		// If return is pressed, prompts for return date, and handles
