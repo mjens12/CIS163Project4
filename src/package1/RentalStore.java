@@ -162,7 +162,8 @@ public class RentalStore extends AbstractTableModel {
 		try {
 			FileInputStream fis = new FileInputStream(filename);
 			ObjectInputStream is = new ObjectInputStream(fis);
-
+			undoStack.clear();
+			addOrRemove.clear();
 			linkedListDVDs = (MyDoubleLinkedList<DVD>) is.readObject();
 			fireTableDataChanged();
 			is.close();
@@ -228,7 +229,8 @@ public class RentalStore extends AbstractTableModel {
 
 		try {
 			Scanner fileReader = new Scanner(new File(filename));
-
+			undoStack.clear();
+			addOrRemove.clear();
 			MyDoubleLinkedList<DVD> newDLL =
 					new MyDoubleLinkedList<DVD>();
 

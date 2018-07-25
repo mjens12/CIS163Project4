@@ -51,8 +51,8 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 	private DVD unit;
 
 	/******************************************************************
-	 * Default constructor that creates the JFrame as well as all of its
-	 * contained GUI elements
+	 * Default constructor that creates the JFrame as well as all of
+	 * its contained GUI elements
 	 * 
 	 * @param parent
 	 *            the parent JFrame
@@ -60,6 +60,7 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 	 *            the DVD to be created
 	 *****************************************************************/
 	public RentDVDDialog(JFrame parent, DVD d) {
+
 		// Calls parent and create a 'modal' dialog
 		super(parent, true);
 
@@ -128,11 +129,12 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 
 		// If OK is clicked, fill the object with entered info
 		if (e.getSource() == okButton) {
+
 			// Allows the frame to be closed
 			closeStatus = true;
 
-			SimpleDateFormat format = new SimpleDateFormat(
-					"MM/dd/yyyy");
+			SimpleDateFormat format =
+					new SimpleDateFormat("MM/dd/yyyy");
 
 			// Creates two calendars to manage the entered dates
 			GregorianCalendar cal1 = new GregorianCalendar();
@@ -169,7 +171,8 @@ public class RentDVDDialog extends JDialog implements ActionListener {
 					}
 
 					// If the due back date is earlier than the rented
-					// on date displays a dialog box and doesn't add the
+					// on date displays a dialog box and doesn't add
+					// the
 					// info
 					else
 						JOptionPane.showMessageDialog(null,

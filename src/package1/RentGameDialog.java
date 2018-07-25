@@ -221,7 +221,6 @@ public class RentGameDialog extends JDialog implements ActionListener {
 
 			// If cancel is clicked, allows the frame to be closed and
 			// closes the frame
-
 		}
 		if (e.getSource() == cancelButton) {
 			unit = null;

@@ -9,6 +9,7 @@ import java.io.Serializable;
  * @version 1.0
  *********************************************************************/
 public class MyDoubleLinkedList<E> implements Serializable {
+
 	/** The top/first node in the list */
 	private DNode<E> top;
 
@@ -94,6 +95,7 @@ public class MyDoubleLinkedList<E> implements Serializable {
 			tail = newNode;
 			top = newNode;
 		}
+
 		// If the list isn't empty adds the new node at the beginning
 		// of the list
 		else {
@@ -202,6 +204,7 @@ public class MyDoubleLinkedList<E> implements Serializable {
 				index++;
 				temp = temp.getNext();
 			}
+
 			// Returns true if at least one element was removed
 			if (removeCount > 0)
 				return true;
