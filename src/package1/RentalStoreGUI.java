@@ -47,14 +47,10 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 	/** Menu item for saving serialized object */
 	private JMenuItem saveSerItem;
 
-	/**
-	 * Menu item for opening text object (not used in proj3, for proj4)
-	 */
+	/** Menu item for opening text object */
 	private JMenuItem openTextItem;
 
-	/**
-	 * Menu item for saving text object (not used in proj3, for proj4)
-	 */
+	/** Menu item for saving text object */
 	private JMenuItem saveTextItem;
 
 	/** Menu item for renting a DVD */
@@ -80,8 +76,6 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 	/** Scroll pane */
 	private JScrollPane scrollList;
-
-	private Object[][] data;
 
 	/******************************************************************
 	 * Default constructor that creates and arranges all the GUI
@@ -135,21 +129,19 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 		// Sets the menus
 		setJMenuBar(menus);
 
-		// DefaultTableModel model = new DefaultTableModel(
-		// tableColumnNames, 0);
-
 		// Sets close operation
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		// Update
-
+		// Creates the RentalStore object, and the JList object and
+		// passes the JList the RentalStore. Also adds the table to the
+		// ScrollPane
 		linkedList = new RentalStore();
 		JTableArea = new JTable(linkedList);
 		JTableArea
 				.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
 		scrollList = new JScrollPane(JTableArea);
 
+		// Adds the scrollList
 		add(scrollList);
 		pack();
 
@@ -169,52 +161,57 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 		Object comp = e.getSource();
 
-		// If open button is pressed, handles opening a serialized save
+		// If openSer button is pressed, handles opening a serialized
+		// save
 		if (openSerItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showOpenDialog(null);
 			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile()
-						.getAbsolutePath();
+				String filename =
+						chooser.getSelectedFile().getAbsolutePath();
 				if (openSerItem == comp)
 					linkedList.loadFromSerializable(filename);
 			}
 		}
 
+		// If openText button is pressed, handles opening a text save
 		if (openTextItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showOpenDialog(null);
 			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile()
-						.getAbsolutePath();
+				String filename =
+						chooser.getSelectedFile().getAbsolutePath();
 				if (openTextItem == comp)
 					linkedList.loadFromText(filename);
 			}
 		}
 
+		// If saveText button is pressed handles saving a text file
 		if (saveTextItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showSaveDialog(null);
 			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile()
-						.getAbsolutePath();
+				String filename =
+						chooser.getSelectedFile().getAbsolutePath();
 				if (saveTextItem == e.getSource())
 					linkedList.saveAsText(filename);
 			}
 		}
 
-		// If save button is pressed, handles saving a serialized object
+		// If saveText button is pressed handles saving a serializable
+		// file
 		if (saveSerItem == comp) {
 			JFileChooser chooser = new JFileChooser();
 			int status = chooser.showSaveDialog(null);
 			if (status == JFileChooser.APPROVE_OPTION) {
-				String filename = chooser.getSelectedFile()
-						.getAbsolutePath();
+				String filename =
+						chooser.getSelectedFile().getAbsolutePath();
 				if (saveSerItem == e.getSource())
 					linkedList.saveAsSerializable(filename);
 			}
 		}
 
+		// If the undo button is pressed undoes one transaction
 		if (e.getSource() == undoItem) {
 			linkedList.undo();
 		}
@@ -253,16 +250,16 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 
 			// Gets the index of the selected item
 			int index = JTableArea.getSelectedRow();
-			// rentallist.GetSelectedRow;
-			//
 
 			// Lets the user know if they haven't selected an item
 			if (index < 0) {
 				JOptionPane.showMessageDialog(null,
-						"Please select the DVD or game you are returning");
+						"Please select the DVD or "
+								+ "game you are returning");
 			}
 
-			// Once item is selected, prompts the user for a return date
+			// Once item is selected, prompts the user for a return
+			// date
 			else {
 				GregorianCalendar date = new GregorianCalendar();
 				date.setLenient(false);
@@ -273,8 +270,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 				// If there is something entered in the return date
 				// input, continues with the process of returning
 				if (inputDate != null) {
-					SimpleDateFormat df = new SimpleDateFormat(
-							"MM/dd/yyyy");
+					SimpleDateFormat df =
+							new SimpleDateFormat("MM/dd/yyyy");
 
 					// Attempts to parse the return date
 					try {
@@ -296,12 +293,16 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 							if (date.compareTo(linkedList.get(index)
 									.getBought()) < 0) {
 								JOptionPane.showMessageDialog(null,
-										"You can not return an item before it was checked out! Please try again");
+										"You can not return an item "
+												+ "before it was "
+												+ "checked out!"
+												+ " Please try again");
 							}
 
 							// If the return date is valid, lets the
 							// user know that the item was successfully
-							// returned and how much money they owe, and
+							// returned and how much money they owe,
+							// and
 							// removes the returned item from the list
 							else {
 								JOptionPane.showMessageDialog(null, ""
@@ -316,7 +317,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 						}
 					} catch (Exception pe) {
 						JOptionPane.showMessageDialog(null,
-								"Could not parse input date! Please try again");
+								"Could not parse input date!"
+										+ " Please try again");
 					}
 
 				}
@@ -342,8 +344,8 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 			// If there is something entered in the field continues as
 			// normal
 			if (inputDate != null) {
-				SimpleDateFormat df = new SimpleDateFormat(
-						"MM/dd/yyyy");
+				SimpleDateFormat df =
+						new SimpleDateFormat("MM/dd/yyyy");
 
 				// Attempts to parse the date entered, if it cannot be
 				// parsed, throws a ParseException that notifies the
@@ -372,24 +374,27 @@ public class RentalStoreGUI extends JFrame implements ActionListener {
 													.format(newDate));
 
 						// If there are late items as of the date
-						// entered, displays those items, as well as the
+						// entered, displays those items, as well as
+						// the
 						// number of days late they will be
 						else
 							JOptionPane.showMessageDialog(null,
-									"Below are the items that will be late as of "
+									"Below are the items that"
+											+ " will be late as of "
 											+ DateFormat
 													.getDateInstance(
 															DateFormat.SHORT)
 													.format(newDate)
-											+ ": \n"
-											+ linkedList.getLate(date));
+											+ ": \n" + linkedList
+													.getLate(date));
 					}
 				}
 
 				// Catches exceptions
 				catch (Exception pe) {
 					JOptionPane.showMessageDialog(null,
-							"Could not parse input date! Please try again");
+							"Could not parse input date!"
+									+ " Please try again");
 				}
 			}
 

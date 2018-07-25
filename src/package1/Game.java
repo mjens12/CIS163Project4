@@ -40,10 +40,10 @@ public class Game extends DVD {
 	}
 
 	/******************************************************************
-	 * Used when game is returned. This method checks to see if game was
-	 * returned late or not. If game was returned before the dueBack
-	 * date, the fee is $5. If the game was returned after the dueBack
-	 * date, the fee is $15.
+	 * Used when game is returned. This method checks to see if game
+	 * was returned late or not. If game was returned before the
+	 * dueBack date, the fee is $5. If the game was returned after the
+	 * dueBack date, the fee is $15.
 	 * 
 	 * @param date
 	 *            Date of when game was returned

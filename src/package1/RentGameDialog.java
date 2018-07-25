@@ -53,11 +53,12 @@ public class RentGameDialog extends JDialog implements ActionListener {
 	/** Game that is being added */
 	private Game unit;
 
+	/** JComboBox for the dropdown playerSelection box */
 	private JComboBox playerList;
 
 	/** Array to hold game console options */
-	private String[] playerOptions = { "Xbox360", "XBox1", "PS4",
-			"WiiU", "NintendoSwitch" };
+	private String[] playerOptions =
+			{ "Xbox360", "XBox1", "PS4", "WiiU", "NintendoSwitch" };
 
 	/******************************************************************
 	 * Default Constructor creates JFrame box as well as its GUI
@@ -110,6 +111,7 @@ public class RentGameDialog extends JDialog implements ActionListener {
 		dueBackTxt = new JTextField(df.format(date), 15);
 		textPanel.add(dueBackTxt);
 
+		// Creates the dropdown box for player type selection
 		playerList = new JComboBox(playerOptions);
 		playerList.setSelectedIndex(0);
 		playerList.addActionListener(this);
@@ -150,8 +152,8 @@ public class RentGameDialog extends JDialog implements ActionListener {
 			// Allows the frame to be closed
 			closeStatus = true;
 
-			SimpleDateFormat format = new SimpleDateFormat(
-					"MM/dd/yyyy");
+			SimpleDateFormat format =
+					new SimpleDateFormat("MM/dd/yyyy");
 
 			// Creates two calendars to manage the entered dates
 			GregorianCalendar cal1 = new GregorianCalendar();
@@ -187,7 +189,8 @@ public class RentGameDialog extends JDialog implements ActionListener {
 					}
 
 					// If the due back date is earlier than the rented
-					// on date displays a dialog box and doesn't add the
+					// on date displays a dialog box and doesn't add
+					// the
 					// info
 					else
 						JOptionPane.showMessageDialog(null,
@@ -203,12 +206,13 @@ public class RentGameDialog extends JDialog implements ActionListener {
 
 			// Attempts to parse the playertype field into one of the
 			// enum playertype options, if correct, adds that
-			// information to the game, if not, throws an exception that
+			// information to the game, if not, throws an exception
+			// that
 			// is caught below and that displays a message for the user
 			// telling them to enter a proper player
 			try {
-				PlayerType p = PlayerType
-						.valueOf((String) playerList.getSelectedItem());
+				PlayerType p = PlayerType.valueOf(
+						(String) playerList.getSelectedItem());
 				unit.setPlayer(p);
 				dispose();
 			} catch (Exception exc) {

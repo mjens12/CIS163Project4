@@ -18,27 +18,43 @@ import javax.swing.JOptionPane;
 import javax.swing.table.AbstractTableModel;
 
 /**********************************************************************
- * RentalStore class that extends AbstractListModel, manages the list of
- * rented items
+ * RentalStore class that extends AbstractListModel, manages the list
+ * of rented items
  * 
  * @author Max Jensen and Monica Klosin
  * @version 1.0
  *********************************************************************/
 public class RentalStore extends AbstractTableModel {
 
+	/**
+	 * Doubly linked list that hold the DVDs/Games and their
+	 * information
+	 */
 	private MyDoubleLinkedList<DVD> linkedListDVDs;
 
+	/**
+	 * Doubly linked list that holds the information of the DVDs that
+	 * were added or removed
+	 */
 	private MyDoubleLinkedList<DVD> undoStack;
 
-	// true is add, false is remove
+	/**
+	 * Doubly linked list that holds booleans representing whether the
+	 * transacations were added or removed. True is an added
+	 * transaction, false is a removed transaction
+	 */
 	private MyDoubleLinkedList<Boolean> addOrRemove;
 
+	/**
+	 * Array of Strings that holds the names of the columns in the
+	 * JTable
+	 */
 	private String[] tableColumnNames = { "Renter Name", "Title",
 			"Date Rented", "Due Date", "Player Type" };
 
 	/** Array to hold game console options */
-	private String[] playerOptions = { "Xbox360", "XBox1", "PS4",
-			"WiiU", "NintendoSwitch" };
+	private String[] playerOptions =
+			{ "Xbox360", "XBox1", "PS4", "WiiU", "NintendoSwitch" };
 
 	/******************************************************************
 	 * Default constructor that calls the AbstractListModel constructor
@@ -66,8 +82,8 @@ public class RentalStore extends AbstractTableModel {
 	}
 
 	/******************************************************************
-	 * Method for removing a DVD from the arraylist, also triggers a GUI
-	 * update to show new list contents
+	 * Method for removing a DVD from the arraylist, also triggers a
+	 * GUI update to show new list contents
 	 * 
 	 * @param a
 	 *            DVD to be added
@@ -79,10 +95,23 @@ public class RentalStore extends AbstractTableModel {
 		fireTableDataChanged();
 	}
 
+	/******************************************************************
+	 * Method that undoes the last transaction based on the two doubly
+	 * linked lists storing that information, and tells the JTable that
+	 * its information has been updated
+	 *****************************************************************/
 	public void undo() {
+
+		// If the list is empty do nothing
 		if (addOrRemove.size() == 0)
 			return;
+
+		// If the list is not empty proceed accordingly
 		else {
+
+			// If the last transacation was an add transaction, remove
+			// that DVD from the main list, and remove it from the two
+			// storage lists
 			if (addOrRemove.get(addOrRemove.size() - 1) == true) {
 				linkedListDVDs.remove(linkedListDVDs.size() - 1);
 				addOrRemove.remove(addOrRemove.size() - 1);
@@ -90,8 +119,13 @@ public class RentalStore extends AbstractTableModel {
 				fireTableDataChanged();
 				return;
 			}
+
+			// If the last transacation was a remove transaction, add
+			// that DVD back to the main list, and remove it from the
+			// two storage lists
 			if (addOrRemove.get(addOrRemove.size() - 1) == false) {
-				linkedListDVDs.add(undoStack.get(undoStack.size() - 1));
+				linkedListDVDs
+						.add(undoStack.get(undoStack.size() - 1));
 				addOrRemove.remove(addOrRemove.size() - 1);
 				undoStack.remove(undoStack.size() - 1);
 				fireTableDataChanged();
@@ -138,6 +172,12 @@ public class RentalStore extends AbstractTableModel {
 		}
 	}
 
+	/******************************************************************
+	 * Method for saving the list as a text file
+	 * 
+	 * @param filename
+	 *            Filename of saved file
+	 *****************************************************************/
 	public void saveAsText(String filename) {
 		PrintWriter out = null;
 		try {
@@ -146,6 +186,10 @@ public class RentalStore extends AbstractTableModel {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		// Runs through the list, printing game or dvd first for each
+		// element in the list based on its class, then prints its
+		// information on new lines
 		for (int i = 0; i < linkedListDVDs.size(); i++) {
 			if (linkedListDVDs.get(i).getClass() == Game.class) {
 				out.println("game");
@@ -155,33 +199,41 @@ public class RentalStore extends AbstractTableModel {
 			}
 			out.println(linkedListDVDs.get(i).getNameOfRenter());
 			out.println(linkedListDVDs.get(i).getTitle());
-			String rentedOnDateStr = DateFormat
-					.getDateInstance(DateFormat.SHORT)
-					.format(linkedListDVDs.get(i).getBought()
-							.getTime());
+			String rentedOnDateStr =
+					DateFormat.getDateInstance(DateFormat.SHORT)
+							.format(linkedListDVDs.get(i).getBought()
+									.getTime());
 			out.println(rentedOnDateStr);
-			String dueBackOnDateStr = DateFormat
-					.getDateInstance(DateFormat.SHORT)
-					.format(linkedListDVDs.get(i).getDueBack()
-							.getTime());
+			String dueBackOnDateStr =
+					DateFormat.getDateInstance(DateFormat.SHORT)
+							.format(linkedListDVDs.get(i).getDueBack()
+									.getTime());
 			out.println(dueBackOnDateStr);
 			if (linkedListDVDs.get(i).getClass() == Game.class) {
-				out.println(((Game) linkedListDVDs.get(i)).getPlayer());
+				out.println(
+						((Game) linkedListDVDs.get(i)).getPlayer());
 			}
 		}
 		out.close();
 
 	}
 
+	/******************************************************************
+	 * Method for loading the list from a text file
+	 * 
+	 * @param filename
+	 *            Filename of saved file
+	 *****************************************************************/
 	public void loadFromText(String filename) {
 
 		try {
 			Scanner fileReader = new Scanner(new File(filename));
 
-			MyDoubleLinkedList<DVD> newDLL = new MyDoubleLinkedList<DVD>();
+			MyDoubleLinkedList<DVD> newDLL =
+					new MyDoubleLinkedList<DVD>();
 
-			SimpleDateFormat format = new SimpleDateFormat(
-					"MM/dd/yyyy");
+			SimpleDateFormat format =
+					new SimpleDateFormat("MM/dd/yyyy");
 
 			// Creates two calendars to manage the entered dates
 			GregorianCalendar cal1 = new GregorianCalendar();
@@ -193,6 +245,8 @@ public class RentalStore extends AbstractTableModel {
 
 			while (fileReader.hasNext()) {
 
+				// Handles importing the saved information, based on
+				// whether or not each chunk of text is a game or dvd
 				if (fileReader.nextLine().equals("game")) {
 					Game gToAdd = new Game();
 					gToAdd.setNameOfRenter(fileReader.nextLine());
@@ -217,12 +271,14 @@ public class RentalStore extends AbstractTableModel {
 				}
 
 			}
+			// Overwrites the old list with the new imported on and
+			// tells the JTable that its information has been changed
 			linkedListDVDs = newDLL;
 			fireTableDataChanged();
 			fileReader.close();
 		}
 
-		// problem reading the file
+		// Handles problems reading the file
 		catch (Exception error) {
 			System.out.println("Oops! Reading the file went wrong");
 			error.printStackTrace();
@@ -309,15 +365,36 @@ public class RentalStore extends AbstractTableModel {
 				/ (1000 * 60 * 60 * 24));
 	}
 
+	/******************************************************************
+	 * Method returning the number of rows in the table to the JTable
+	 * 
+	 * @return int Number of rows in the table
+	 *****************************************************************/
 	public int getRowCount() {
 
 		return linkedListDVDs.size();
 	}
 
+	/******************************************************************
+	 * Method returning the number of columns in the table to the
+	 * JTable
+	 * 
+	 * @return int Number of columns in the table
+	 *****************************************************************/
 	public int getColumnCount() {
 		return 5;
 	}
 
+	/******************************************************************
+	 * Method that gets the contents of a specific cell of the table
+	 * for the JTable to then represent it in the GUI
+	 * 
+	 * @param rowIndex
+	 *            The row index to call
+	 * @param columnIndex
+	 *            The column index to call
+	 * @return Object The contents of the specified cell
+	 *****************************************************************/
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		DVD temp = linkedListDVDs.get(rowIndex);
 		try {
@@ -331,20 +408,22 @@ public class RentalStore extends AbstractTableModel {
 
 			if (columnIndex == 2) {
 
-				String rentedOnDateStr = DateFormat
-						.getDateInstance(DateFormat.SHORT)
-						.format(temp.getBought().getTime());
+				String rentedOnDateStr =
+						DateFormat.getDateInstance(DateFormat.SHORT)
+								.format(temp.getBought().getTime());
 				return rentedOnDateStr;
 			}
 
 			if (columnIndex == 3) {
 
-				String dueBackDateStr = DateFormat
-						.getDateInstance(DateFormat.SHORT)
-						.format(temp.getDueBack().getTime());
+				String dueBackDateStr =
+						DateFormat.getDateInstance(DateFormat.SHORT)
+								.format(temp.getDueBack().getTime());
 				return dueBackDateStr;
 			}
 
+			// If the item is a game, returns the player type,
+			// otherwise returns ""
 			if (columnIndex == 4 && temp.getClass() == Game.class) {
 				return ((Game) temp).getPlayer();
 			} else
@@ -355,10 +434,25 @@ public class RentalStore extends AbstractTableModel {
 
 	}
 
+	/******************************************************************
+	 * Method that gets a specific index of the list of DVDs/Games
+	 * 
+	 * @param index
+	 *            The index to return
+	 * @return DVD The item at the index
+	 *****************************************************************/
 	public DVD get(int index) {
 		return linkedListDVDs.get(index);
 	}
 
+	/******************************************************************
+	 * Method that gets the names of the columns for the JTable in the
+	 * GUI
+	 * 
+	 * @param column
+	 *            The column to return the name of
+	 * @return String the name of the column
+	 *****************************************************************/
 	public String getColumnName(int column) {
 		return tableColumnNames[column];
 	}
