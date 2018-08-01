@@ -144,6 +144,15 @@ public class MyDoubleLinkedList<E> implements Serializable {
 					tail = n1;
 				}
 
+				// If the index is the first one removes it
+				if (index == 0) {
+					n1 = top.getNext();
+					top = top.getNext();
+					n1.setPrev(null);
+					n1.setNext(n1.getNext());
+
+				}
+
 				else {
 
 					// If the node is somewhere in the middle of the
